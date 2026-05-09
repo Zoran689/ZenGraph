@@ -698,6 +698,27 @@ async function adminDeleteNode() {
   } catch(e) { msg.textContent = '❌ 请求失败: ' + e.message; }
 }
 
+async function adminUpdateNode() {
+  const id = document.getElementById('admin-node-id').value.trim();
+  const desc = document.getElementById('admin-node-desc').value.trim();
+  const cat = document.getElementById('admin-node-cat').value;
+  const msg = document.getElementById('admin-node-msg');
+  if (!id) { msg.textContent = '请输入节点名称'; return; }
+  try {
+    const res = await fetch(`/api/admin/node/${encodeURIComponent(id)}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({category: cat, description: desc})
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.textContent = '✅ 节点已更新';
+      reloadGraph();
+    } else {
+      msg.textContent = '❌ ' + (data.detail || '更新失败');
+    }
+  } catch(e) { msg.textContent = '❌ 请求失败: ' + e.message; }
+}
+
 async function adminCreateEdge() {
   const source = document.getElementById('admin-edge-source').value.trim();
   const target = document.getElementById('admin-edge-target').value.trim();
