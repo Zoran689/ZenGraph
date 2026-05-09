@@ -1,10 +1,10 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Zoran689/ZenGraph/main/frontend/static/images/ZenGraph.png" width="120" alt="ZenGraph">
+</p>
+
 # ZenGraph — 缠论知识图谱
 
 缠论（缠中说禅理论）知识图谱系统，支持概念检索、关系图谱可视化、学习路径规划。
-
-## 截图
-
-![ZenGraph](https://via.placeholder.com/800x450?text=ZenGraph+Screenshot)
 
 ## 功能
 
@@ -14,7 +14,6 @@
 - **学习路径** — 从任意概念出发，推荐学习路线
 - **路径查询** — 查询两个概念之间的最短关系路径
 - **图谱管理** — 增删节点和关系（图谱管理 Tab）
-- **RAG 问答** — 基于知识图谱的智能问答（ZenLLM）
 
 ## 技术栈
 
