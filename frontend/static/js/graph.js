@@ -231,15 +231,6 @@ async function showNodeDetail(d) {
   renderKnowledgeLinks("d-prerequisites", "d-prereq-section", meta.prereq);
   // 后续学习
   renderKnowledgeLinks("d-next", "d-next-section", meta.next);
-  // 关联课程
-  const courseEl = document.getElementById("d-course");
-  const courseSection = document.getElementById("d-course-section");
-  if (meta.course) {
-    courseSection.style.display = "block";
-    courseEl.innerHTML = `<a class="knowledge-link" href="/Volumes/Zoran_SSD/ZenGraph/${encodeURIComponent(meta.course)}" target="_blank" style="text-decoration:none;">📖 ${meta.course}</a>`;
-  } else {
-    courseSection.style.display = "none";
-  }
   // 配图（从 localStorage 加载保存的图片路径）
   const imgSection = document.getElementById("d-image-section");
   const imgEl = document.getElementById("d-image");

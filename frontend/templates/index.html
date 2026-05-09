@@ -149,17 +149,13 @@
           <h3>后续学习</h3>
           <div id="d-next" class="knowledge-links"></div>
         </div>
-        <div class="detail-section" id="d-course-section" style="display:none;">
-          <h3>关联课程</h3>
-          <div id="d-course" class="knowledge-links"></div>
-        </div>
         <div class="detail-section" id="d-image-section" style="display:none;">
           <h3>走势图例</h3>
           <div style="position:relative;">
             <img id="d-image" class="concept-image" onclick="zoomImage(this)" style="max-width:100%;border-radius:8px;border:1px solid var(--border);display:none;cursor:zoom-in;">
             <div id="d-image-placeholder" style="padding:20px;text-align:center;border:2px dashed var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;">
               <p>暂无图例</p>
-              <label class="upload-btn" style="display:inline-block;margin-top:8px;padding:6px 16px;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;">上传图片</label>
+              <label class="upload-btn" for="d-image-upload" style="display:inline-block;margin-top:8px;padding:6px 16px;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;">上传图片</label>
               <input type="file" id="d-image-upload" accept="image/png,image/jpeg,image/gif,image/svg" style="display:none;" onchange="uploadConceptImage(this)">
             </div>
             <button id="d-image-remove" onclick="removeConceptImage()" style="display:none;position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer;font-size:14px;line-height:24px;text-align:center;">✕</button>
