@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>ZenGraph - 缠论知识图谱</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+<link rel="stylesheet" href="/static/css/style.css?v=20260509a">
+<style>
+/* ===== ZenLLM 聊天风格 (从 ZenQuant 移植) ===== */
+.rp-messages { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
+.rp-message { display:flex; gap:8px; max-width:100%; }
+.rp-message.user { flex-direction:row-reverse; }
+.rp-avatar { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.rp-message.user .rp-avatar { background:linear-gradient(135deg,#00838F,#00acc1); }
+.rp-message.assistant .rp-avatar { background:linear-gradient(135deg,#6B21C8,#9333ea); color:#fff; font-size:12px; }
+.rp-bubble { padding:8px 12px; border-radius:12px; font-size:13px; line-height:1.6; max-width:85%; word-break:break-word; }
+.rp-message.user .rp-bubble { background:#e3f2fd; color:#1a1a1a; border-bottom-right-radius:4px; }
+.rp-message.assistant .rp-bubble { background:#f5f5f5; color:#1a1a1a; border-bottom-left-radius:4px; }
+.rp-bubble pre { background:#2d2d2d; color:#e0e0e0; padding:8px; border-radius:6px; overflow-x:auto; font-size:12px; margin:4px 0; }
+.rp-bubble code { background:#e7eef4; padding:1px 4px; border-radius:3px; font-size:12px; }
+.rp-bubble table { border-collapse:collapse; margin:4px 0; width:100%; font-size:12px; }
+.rp-bubble th,.rp-bubble td { border:1px solid #d8dee4; padding:4px 8px; }
+.rp-bubble th { background:#f6f8fa; font-weight:600; }
+.rp-bubble ul { margin:4px 0; padding-left:18px; }
+.rp-typing { display:flex; gap:4px; padding:2px 0; align-items:center; }
+.rp-typing span { width:6px; height:6px; border-radius:50%; background:#999; animation:rpTyping 1.4s infinite; }
+.rp-typing span:nth-child(2) { animation-delay:.2s; }
+.rp-typing span:nth-child(3) { animation-delay:.4s; }
+@keyframes rpTyping { 0%,60%,100%{opacity:.3} 30%{opacity:1} }
+.rp-examples { padding:8px 12px; }
+.rp-examples-title { font-size:12px; color:#888; margin-bottom:6px; }
+.rp-example-btns { display:flex; flex-wrap:wrap; gap:4px; }
+.rp-example-btn { font-size:11px; padding:4px 10px; border:1px solid #ddd; border-radius:14px; background:#fff; cursor:pointer; color:#555; }
+.rp-example-btn:hover { background:#e3f2fd; border-color:#42a5f5; color:#1565c0; }
+.rp-input-area { padding:8px 12px; border-top:1px solid #eee; }
+.rp-input-wrap { display:flex; gap:8px; }
+.rp-input-wrap textarea { flex:1; resize:none; border:1px solid #ddd; border-radius:8px; padding:8px 12px; font-size:13px; outline:none; font-family:inherit; }
+.rp-input-wrap textarea:focus { border-color:#42a5f5; }
+.rp-send-btn { padding:8px 20px; background:linear-gradient(135deg,#6B21C8,#9333ea); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:13px; white-space:nowrap; }
+.rp-send-btn:hover { opacity:.9; }
+.rp-send-btn:disabled { opacity:.5; cursor:not-allowed; }
+.rp-settings { padding:6px 12px; border-top:1px solid #eee; background:#fafafa; }
+.rp-setting-row { display:flex; gap:8px; align-items:center; margin:2px 0; flex-wrap:wrap; }
+.rp-setting-item { display:flex; align-items:center; gap:4px; font-size:12px; color:#666; }
+.rp-setting-item label { white-space:nowrap; font-size:11px; }
+.rp-setting-item select { font-size:11px; padding:2px 6px; border:1px solid #ddd; border-radius:4px; outline:none; }
+.rp-setting-item input[type=range] { width:80px; height:4px; }
+.rp-setting-item input[type=checkbox] { margin:0; width:14px; height:14px; cursor:pointer; }
+.rp-setting-item span { font-size:11px; color:#888; min-width:28px; text-align:center; }
+.rp-status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+.rp-status-dot.online { background:#1a7f37; }
+.rp-status-dot.offline { background:#9a9b9e; }
+.rp-status-dot.loading { background:#9a6700; animation:rp-pulse 1s infinite; }
+@keyframes rp-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.rp-status-text { font-size:11px; color:#656d76; }
+.rp-connect-btn { font-size:10px; padding:2px 8px; border:1px solid #1a7f37; border-radius:4px; background:#fff; color:#1a7f37; cursor:pointer; }
+.rp-connect-btn:hover { background:#1a7f37; color:#fff; }
+/* 缩放控件 */
+.graph-controls { position:absolute; bottom:16px; right:16px; display:flex; flex-direction:column; gap:4px; z-index:10; }
+.graph-controls button { width:32px; height:32px; border-radius:6px; border:1px solid #ddd; background:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+.graph-controls button:hover { background:#f0f0f0; }
+/* 管理面板 */
+.admin-section { padding:8px; border-bottom:1px solid #30363d; }
+.admin-form { display:flex; flex-direction:column; gap:6px; }
+.admin-input { padding:6px 8px; border:1px solid #30363d; border-radius:4px; background:#0d1117; color:#e6edf3; font-size:12px; outline:none; }
+.admin-input:focus { border-color:#58a6ff; }
+.admin-select { padding:6px 8px; border:1px solid #30363d; border-radius:4px; background:#0d1117; color:#e6edf3; font-size:12px; outline:none; }
+.admin-select:focus { border-color:#58a6ff; }
+.admin-btn-row { display:flex; gap:6px; }
+.admin-btn-row .btn { flex:1; font-size:11px; padding:5px 0; }
+.btn-danger { background:#da3633; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+.btn-danger:hover { background:#b62324; }
+.admin-msg { font-size:11px; padding:4px 0; color:#8b949e; word-break:break-all; }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<header id="header">
+  <div class="site-title">
+    <span class="icon"><img src="/static/images/ZenGraph.png"></span>
+    <span style="font-family:'Montserrat',-apple-system,sans-serif;letter-spacing:1px;font-weight:500">
+      <span style="font-weight:700;color:#1A1A1A">Zen</span><span style="font-weight:700;color:#E53935">Graph</span>
+    </span>
+  </div>
+  <div class="header-actions">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索概念..." autocomplete="off">
+      <div id="searchResults" class="search-dropdown"></div>
+    </div>
+    <button class="btn" onclick="resetView()">重置视图</button>
+  </div>
+</header>
+
+<!-- 主内容区 -->
+<main id="main">
+  <!-- 左侧：图谱 -->
+  <section id="graph-panel">
+    <div id="graph"></div>
+    <div id="tooltip"></div>
+    <div class="graph-controls">
+      <button onclick="zoomIn()" title="放大">+</button>
+      <button onclick="zoomOut()" title="缩小">−</button>
+      <button onclick="resetView()" title="重置视图">⟲</button>
+    </div>
+    <!-- 图例 -->
+    <div id="legend"></div>
+  </section>
+
+  <!-- 右侧面板 -->
+  <aside id="sidebar">
+    <!-- 标签切换 -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="detail" onclick="switchTab('detail')">概念详情</button>
+      <button class="tab" data-tab="learn" onclick="switchTab('learn')">学习路径</button>
+      <button class="tab" data-tab="path" onclick="switchTab('path')">路径查询</button>
+      <button class="tab" data-tab="admin" onclick="switchTab('admin')">图谱管理</button>
+    </div>
+
+    <!-- 概念详情 Tab -->
+    <div id="tab-detail" class="tab-content active">
+      <div id="placeholder">
+        <div class="placeholder-watermark">点击图谱中的节点查看概念详情</div>
+      </div>
+      <div id="node-detail" class="detail-panel" style="display:none">
+        <div class="detail-header">
+          <h2 id="d-name"></h2>
+          <span id="d-category" class="category-badge"></span>
+          <span id="d-difficulty" class="diff-badge"></span>
+        </div>
+        <div id="d-desc" class="detail-desc"></div>
+        <div class="detail-section">
+          <h3>关联概念</h3>
+          <div id="d-related" class="related-chips"></div>
+        </div>
+        <div class="detail-section" id="d-prereq-section" style="display:none;">
+          <h3>前置知识</h3>
+          <div id="d-prerequisites" class="knowledge-links"></div>
+        </div>
+        <div class="detail-section" id="d-next-section" style="display:none;">
+          <h3>后续学习</h3>
+          <div id="d-next" class="knowledge-links"></div>
+        </div>
+        <div class="detail-section" id="d-course-section" style="display:none;">
+          <h3>关联课程</h3>
+          <div id="d-course" class="knowledge-links"></div>
+        </div>
+        <div class="detail-section" id="d-image-section" style="display:none;">
+          <h3>走势图例</h3>
+          <div style="position:relative;">
+            <img id="d-image" class="concept-image" onclick="zoomImage(this)" style="max-width:100%;border-radius:8px;border:1px solid var(--border);display:none;cursor:zoom-in;">
+            <div id="d-image-placeholder" style="padding:20px;text-align:center;border:2px dashed var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;">
+              <p>暂无图例</p>
+              <label class="upload-btn" style="display:inline-block;margin-top:8px;padding:6px 16px;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;">上传图片</label>
+              <input type="file" id="d-image-upload" accept="image/png,image/jpeg,image/gif,image/svg" style="display:none;" onchange="uploadConceptImage(this)">
+            </div>
+            <button id="d-image-remove" onclick="removeConceptImage()" style="display:none;position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer;font-size:14px;line-height:24px;text-align:center;">✕</button>
+          </div>
+          <div id="d-image-msg" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- 智能问答 Tab 已移除 -->
+    </div>
+
+    <!-- 学习路径 Tab -->
+    <div id="tab-learn" class="tab-content">
+      <div id="learn-path"></div>
+    </div>
+
+    <!-- 路径查询 Tab -->
+    <div id="tab-path" class="tab-content">
+      <div class="path-form">
+        <div class="form-group">
+          <label>起始概念</label>
+          <input type="text" id="pathSource" placeholder="如：背驰" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>目标概念</label>
+          <input type="text" id="pathTarget" placeholder="如：第一类买点" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" onclick="findPath()">查找路径</button>
+      </div>
+      <div id="pathResult" class="path-result"></div>
+    </div>
+
+    <!-- 图谱管理 Tab -->
+    <div id="tab-admin" class="tab-content">
+      <div class="admin-section">
+        <h3 style="font-size:13px;margin:0 0 8px 0;color:#e6edf3;">节点管理</h3>
+        <div class="admin-form">
+          <input type="text" id="admin-node-id" placeholder="节点名称" class="admin-input">
+          <select id="admin-node-cat" class="admin-select">
+            <option value="基础原理">基础原理</option>
+            <option value="核心概念">核心概念</option>
+            <option value="结构元素">结构元素</option>
+            <option value="走势类型">走势类型</option>
+            <option value="买卖点">买卖点</option>
+            <option value="定理系统">定理系统</option>
+            <option value="操作方法">操作方法</option>
+            <option value="风险管理">风险管理</option>
+            <option value="级别体系">级别体系</option>
+            <option value="哲学思想">哲学思想</option>
+            <option value="三维统一">三维统一</option>
+          </select>
+          <textarea id="admin-node-desc" placeholder="描述（可选）" class="admin-input" rows="2"></textarea>
+          <div class="admin-btn-row">
+            <button class="btn btn-primary" onclick="adminCreateNode()">创建节点</button>
+            <button class="btn btn-danger" onclick="adminDeleteNode()">删除节点</button>
+          </div>
+          <div id="admin-node-msg" class="admin-msg"></div>
+        </div>
+      </div>
+      <div class="admin-section" style="margin-top:12px;">
+        <h3 style="font-size:13px;margin:0 0 8px 0;color:#e6edf3;">关系管理</h3>
+        <div class="admin-form">
+          <input type="text" id="admin-edge-source" placeholder="源节点" class="admin-input">
+          <input type="text" id="admin-edge-target" placeholder="目标节点" class="admin-input">
+          <input type="text" id="admin-edge-label" placeholder="关系标签" class="admin-input">
+          <div class="admin-btn-row">
+            <button class="btn btn-primary" onclick="adminCreateEdge()">创建关系</button>
+            <button class="btn btn-danger" onclick="adminDeleteEdge()">删除关系</button>
+          </div>
+          <div id="admin-edge-msg" class="admin-msg"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- 聊天脚本已移除 -->
+<script src="/static/js/graph.js?v=20260509a"></script>
+</body>
+</html>
