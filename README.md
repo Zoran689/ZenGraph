@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Zoran689/ZenGraph/main/frontend/static/images/ZenGraph.png" width="120" alt="ZenGraph">
+  <img src="https://raw.githubusercontent.com/Zoran689/ZenGraph/main/frontend/static/images/ZenGraph.png" width="200" alt="ZenGraph">
 </p>
 
-# ZenGraph — 缠论知识图谱
+<h1 align="center">ZenGraph — 缠论知识图谱</h1>
 
 缠论（缠中说禅理论）知识图谱系统，支持概念检索、关系图谱可视化、学习路径规划。
 
